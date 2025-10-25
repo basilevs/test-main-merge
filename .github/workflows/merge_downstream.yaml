@@ -30,7 +30,7 @@ jobs:
         uses: devmasx/merge-branch@1.4.0
         with:
           type: now
-          from_branch: ${{ github.event.workflow_run.head_branch }}
+          from_branch: ${{ github.event.workflow_run.head_sha }}
           target_branch: ${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
   debug:
