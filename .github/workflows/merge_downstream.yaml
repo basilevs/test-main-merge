@@ -1,4 +1,4 @@
-name: Merge upstream
+name: Merge downstream
 
 # Controls when the workflow will run
 on:
@@ -12,7 +12,7 @@ env:
   downstream_release/0.1: release/0.2
   downstream_release/0.2: main
 
-run-name: Merge ${{ github.event.workflow_run.head_branch }} into ${{ github.env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}
+run-name: Merge ${{ github.event.workflow_run.display_title }} from ${{ github.event.workflow_run.head_branch }} downstream 
 
 jobs:
   merge:  
