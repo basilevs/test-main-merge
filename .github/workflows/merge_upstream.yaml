@@ -6,14 +6,18 @@ on:
   workflow_run:
     workflows: ["CI"]
     types: [completed] #requested
-    branches: [release/0.2]
+    branches: [release/0.1, release/0.2]
+
+env:
+  downstream_release/0.1: release/0.2
+  downstream_release/0.2: main
 
 jobs:
   merge:  
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.ref_type == 'branch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' && env[format('downstream_', github.event.workflow_run.head_branch)] != '' }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -23,7 +27,7 @@ jobs:
         with:
           type: now
           from_branch: ${{ github.event.workflow_run.head_branch }}
-          target_branch: ${{ github.ref_name }}
+          target_branch: ${{ env[format('downstream_', github.event.workflow_run.head_branch)] }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
   dump_contexts_to_log:
     runs-on: ubuntu-latest
