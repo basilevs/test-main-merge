@@ -12,27 +12,20 @@ env:
   downstream_release/0.1: release/0.2
   downstream_release/0.2: main
 
+
 run-name: Merge ${{ github.event.workflow_run.head_branch }} downstream 
 
 jobs:
   merge:  
     permissions:
-      contents: write
+      pull-requests: write
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - name: Merge ${{ github.event.workflow_run.head_sha }} into ${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}
-        uses: devmasx/merge-branch@1.4.0
-        with:
-          type: now
-          from_branch: ${{ github.event.workflow_run.head_sha }}
-          target_branch: ${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: create pull request
+        run: gh pr create -B "${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}" -H "${{ github.event.workflow_run.head_branch }}" --fill --body "[Created by Github action](https://github.com/basilevs/test-main-merge/actions/runs/${{ github.run_id }})"
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   debug:
     runs-on: ubuntu-latest
     steps:
