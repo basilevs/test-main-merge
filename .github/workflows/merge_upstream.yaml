@@ -12,6 +12,8 @@ env:
   downstream_release/0.1: release/0.2
   downstream_release/0.2: main
 
+run-name: Merge ${{ github.event.workflow_run.head_branch }} into ${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}
+
 jobs:
   merge:  
     permissions:
