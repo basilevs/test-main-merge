@@ -31,7 +31,8 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
   debug:
     runs-on: ubuntu-latest
-    run: "echo Target branch: ${{ env[format('downstream_', github.event.workflow_run.head_branch)] }}"
+    steps:
+      run: "echo Target branch: ${{ env[format('downstream_', github.event.workflow_run.head_branch)] }}"
   dump_contexts_to_log:
     runs-on: ubuntu-latest
     steps:
