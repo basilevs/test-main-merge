@@ -2,12 +2,11 @@ name: Merge upstream
 
 # Controls when the workflow will run
 on:
- on:
-   workflow_dispatch:
-   workflow_run:
-     workflows: ["CI"]
-     types: [completed] #requested
-     branches: [release/0.1]
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed] #requested
+    branches: [release/0.1]
 
 jobs:
   merge:
