@@ -27,12 +27,17 @@ jobs:
         with:
           type: now
           from_branch: ${{ github.event.workflow_run.head_branch }}
-          target_branch: ${{ env[format('downstream_', github.event.workflow_run.head_branch)] }}
+          target_branch: ${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
   debug:
     runs-on: ubuntu-latest
     steps:
-      - run: "echo Target branch: ${{ env[format('downstream_', github.event.workflow_run.head_branch)] }}"
+      - name: Branch of origin
+        run: "echo ${{ github.event.workflow_run.head_branch }}"
+      - name: Mapping key
+        run: "echo ${{ format('downstream_{0}', github.event.workflow_run.head_branch) }} "
+      - name: Target branch
+        run: "echo ${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}"
   dump_contexts_to_log:
     runs-on: ubuntu-latest
     steps:
