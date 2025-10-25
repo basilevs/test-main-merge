@@ -24,9 +24,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: create pull request
-        run: gh pr create -B "${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}" -H "${{ github.event.workflow_run.head_branch }}" --fill --body "[Created by Github action](https://github.com/basilevs/test-main-merge/actions/runs/${{ github.run_id }})"
+        run: gh pr create -B "${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}" -H "${{ github.event.workflow_run.head_branch }}" --title "Merge ${{ github.event.workflow_run.head_branch }} into env[format('downstream_{0}', github.event.workflow_run.head_branch)] " --body "[Created by Github action](https://github.com/basilevs/test-main-merge/actions/runs/${{ github.run_id }})"
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   debug:
     runs-on: ubuntu-latest
     steps:
