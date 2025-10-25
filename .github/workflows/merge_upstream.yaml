@@ -22,7 +22,7 @@ jobs:
         uses: devmasx/merge-branch@1.4.0
         with:
           type: now
-          from_branch: ${{ github.workflow_run.head_branch }}
+          from_branch: ${{ github.event.workflow_run.head_branch }}
           target_branch: ${{ github.ref_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
   dump_contexts_to_log:
