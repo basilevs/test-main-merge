@@ -22,6 +22,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+        persist-credentials: false
       - name: Merge branch
         uses: devmasx/merge-branch@1.4.0
         with:
