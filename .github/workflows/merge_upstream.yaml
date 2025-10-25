@@ -17,7 +17,7 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' && env[format('downstream_', github.event.workflow_run.head_branch)] != '' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -29,6 +29,9 @@ jobs:
           from_branch: ${{ github.event.workflow_run.head_branch }}
           target_branch: ${{ env[format('downstream_', github.event.workflow_run.head_branch)] }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+  debug:
+    runs-on: ubuntu-latest
+    run: echo Target branch: ${{ env[format('downstream_', github.event.workflow_run.head_branch)] }}
   dump_contexts_to_log:
     runs-on: ubuntu-latest
     steps:
