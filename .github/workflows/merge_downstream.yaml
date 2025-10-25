@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - uses: actions/checkout@v4
       - name: create pull request
         run: gh pr create -B "${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}" -H "${{ github.event.workflow_run.head_branch }}" --fill --body "[Created by Github action](https://github.com/basilevs/test-main-merge/actions/runs/${{ github.run_id }})"
         env:
