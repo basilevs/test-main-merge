@@ -33,6 +33,7 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }} # Use PAT to trigger downstream workflows
           dependency_graph: |
             release/0.1: release/0.2
+            release/0.1: main
 
       # Step 2: Intermediate Actions (Filter unwanted changes)
       # NOTE: If you have multiple downstreams, this script must be smart enough
