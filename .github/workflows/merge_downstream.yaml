@@ -19,6 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0 # Important for merge history
 
       # Step 1: Execute the Merge Action (Main Phase)
