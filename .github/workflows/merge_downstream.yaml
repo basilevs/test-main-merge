@@ -42,7 +42,7 @@ jobs:
           CURRENT_BRANCH=$(git branch --show-current)
           if [[ "$CURRENT_BRANCH" == merge/* ]]; then
              echo "Prevent automatic changes of releng by $CURRENT_BRANCH..."
-             git diff --name-only -- $(git merge-base "${{ github.event.workflow_run.head_sha }}" HEAD) | grep pom.xml$ && exit 2
+             git diff --name-only -- 'HEAD^1' | grep pom.xml$ && exit 2
           fi
 
       # Step 3: The 'Post' phase of the cascade action runs automatically here.
