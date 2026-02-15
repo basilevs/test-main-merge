@@ -8,64 +8,48 @@ on:
     types: [completed] #requested
     branches: [release/0.1, release/0.2]
 
-env:
-  downstream_release/0.1: release/0.2
-  downstream_release/0.2: main
+name: Cascade Merge
 
-
-run-name: Merge ${{ github.event.workflow_run.head_branch }} downstream 
+on:
+  workflow_run:
+    workflows: ["Verify branch"] # The 'Original Workflow'
+    types: [completed]
 
 jobs:
-  pull_request:  
-    permissions:
-      pull-requests: write
+  cascade:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - uses: actions/checkout@v4
-      - name: create pull request
+        with:
+          fetch-depth: 0 # Important for merge history
+
+      # Step 1: Execute the Merge Action (Main Phase)
+      # This creates local branches merge/release/1.0/release/1.1 etc.
+      - name: Calculate and Merge
+        id: cascade
+        uses: basilevs/cascade-merge@main # or owner/repo@v1
+        with:
+          token: ${{ secrets.PAT_TOKEN }} # Use PAT to trigger downstream workflows
+          dependency_graph: |
+            release/0.1: release/0.2
+
+      # Step 2: Intermediate Actions (Filter unwanted changes)
+      # NOTE: If you have multiple downstreams, this script must be smart enough
+      # to switch between the branches created by the step above.
+      - name: Remove Version Bumps (Intermediate)
         run: |
-          declare SOURCE="${{ github.event.workflow_run.head_branch }}"
-          declare TARGET="${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}"
-          git fetch origin "$SOURCE" "$TARGET"
-          git diff --name-only origin/$TARGET...origin/$SOURCE | grep pom.xml$ && exit 2 # Do not merge version bumps and release management
-          gh pr create -B "$TARGET" -H "$SOURCE" --title "Merge $SOURCE into $TARGET" --body "[Created by Github action](${{ github.event.repository.html_url }}/actions/runs/${{ github.run_id }})" || declare -i result=$?
-          echo $result
-        env:
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  debug:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Branch of origin
-        run: "echo ${{ github.event.workflow_run.head_branch }}"
-      - name: Mapping key
-        run: "echo ${{ format('downstream_{0}', github.event.workflow_run.head_branch) }} "
-      - name: Target branch
-        run: "echo ${{ env[format('downstream_{0}', github.event.workflow_run.head_branch)] }}"
-  dump_contexts_to_log:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: Dump job context
-        env:
-          JOB_CONTEXT: ${{ toJson(job) }}
-        run: echo "$JOB_CONTEXT"
-      - name: Dump steps context
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"
-      - name: Dump runner context
-        env:
-          RUNNER_CONTEXT: ${{ toJson(runner) }}
-        run: echo "$RUNNER_CONTEXT"
-      - name: Dump strategy context
-        env:
-          STRATEGY_CONTEXT: ${{ toJson(strategy) }}
-        run: echo "$STRATEGY_CONTEXT"
-      - name: Dump matrix context
-        env:
-          MATRIX_CONTEXT: ${{ toJson(matrix) }}
-        run: echo "$MATRIX_CONTEXT"
+          # The action sets the last processed branch as active.
+          # If we need to process ALL temp branches, we must loop manually.
+          # This example assumes the Action outputted the branches or we know logic.
+          
+          set -xe
+          # Example Logic:
+          CURRENT_BRANCH=$(git branch --show-current)
+          if [[ "$CURRENT_BRANCH" == merge/* ]]; then
+             echo "Prevent automatic changes of releng by $CURRENT_BRANCH..."
+             git diff --name-only -- $(git merge-base "${{ github.event.workflow_run.head_sha }}" HEAD) | grep pom.xml$ && exit 2
+          fi
+
+      # Step 3: The 'Post' phase of the cascade action runs automatically here.
+      # It will push the branches and create PRs.
