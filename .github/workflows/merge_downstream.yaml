@@ -40,10 +40,7 @@ jobs:
         if: ${{ steps.cascade.outputs.target_branches != '' }}
         run: |
           echo "${{ steps.cascade.outputs.target_branches }}" | while read -r downstream; do
-            # Skip empty lines if any
-            [ -z "$downstream" ] && continue
-            
-            # Example: Do not merge version bumps automatically
+            # Fail on a change in pom.xml files
             git diff --name-only --merge-base "origin/$downstream" "${{ github.event.workflow_run.head_sha }}" | grep pom.xml$ && exit 2 || true
           done
 
