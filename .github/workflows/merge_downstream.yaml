@@ -13,7 +13,6 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
-      actions: write
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
@@ -28,7 +27,6 @@ jobs:
         id: cascade
         uses: basilevs/cascade-merge@main # or owner/repo@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }} # Use PAT to trigger downstream workflows
           dependency_graph: |
             release/0.1: release/0.2
             release/0.2: main
