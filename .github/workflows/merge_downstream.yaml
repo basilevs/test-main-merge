@@ -24,7 +24,7 @@ jobs:
       # This creates local branches merge/release/1.0/release/1.1 etc.
       - name: Merge downstreams and upstream in temporary branches 
         id: cascade
-        uses: basilevs/cascade-merge@main # or owner/repo@v1
+        uses: basilevs/cascade-merge@v1.1 # or owner/repo@v1
         with:
           dependency_graph: |
             release/0.1: release/0.2  # dependency: dependent branches
